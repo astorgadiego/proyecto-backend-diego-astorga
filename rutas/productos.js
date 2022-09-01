@@ -1,6 +1,6 @@
 const { timeStamp } = require('console');
 const express = require ( 'express' );
-const timestamp = require ('./timestamp');
+const timestamp = require ('../timestamp');
 const data = require ('fs');
 
 const { Router } = express;
@@ -30,8 +30,10 @@ const router = Router();
 //     } 
 // ]
 
-let productosDisponibles;
+let productosDisponibles =[];
 
+
+//LISTA TODOS LOS PRODUCTOS DISPONIBLES
 router.get ('/', (req, res) => {
     productosDisponibles = JSON.parse( data.readFileSync( 'archivos/productos.txt','utf-8' ))  //PASA DE JSON A JS
     productosDisponibles.forEach(element => {
@@ -66,20 +68,55 @@ router.get('/:id', (req, res) => {
 //AGREGA UN NUEVO PRODUCTO CON UN NUEVO ID
 router.post('/', (req, res) => {
     const productoAGuardar = req.body;
-    
-    let idAgregado = parseInt( productoAGuardar.id )
+    console.log("quien soy:",productoAGuardar );
+    let idAgregado = parseInt( productoAGuardar.id ) //PASA DE STRING A ENTERO
     //let timeStampNuevo = parseInt ( productoAGuardar.timeStamp )
+    if ( data.readFileSync( 'archivos/productos.txt' ,'utf-8' )  ===  '' ) {
+        console.log("ACA NO HABIA NADA");
+        let NumeroPrecio = parseFloat ( productoAGuardar.precio )
+        productoAGuardar.precio = NumeroPrecio ;
+        productoAGuardar.id = 1;    
+        productoAGuardar.timeStamp = timestamp;
+        console.log( 'el producto guardado es:', productoAGuardar );
 
-    productoAGuardar.id = idAgregado;
-    productoAGuardar.timeStamp = timestamp;
+        productosDisponibles.push(productoAGuardar);
+        let arraySTRING= JSON.stringify( productosDisponibles )  //PASA DE JS A JSON
+        data.writeFileSync(  'archivos/productos.txt', `${ arraySTRING }` )
+
+        res.status(201).send(productosDisponibles)
+     }
+     else{
+        console.log("ACA SI HAABIA ALGO.");
+        let idAsignado; 
+        let ultimoid = 0;
+        let ultimoObjeto = productoAGuardar;
+        let productosDisponibles = JSON.parse(  data.readFileSync('archivos/productos.txt','utf-8' )); //PASA DE JSON A JS
+
+        productosDisponibles.forEach(element => {
+            ultimoid = element.id
+            console.log(element.id);
+        });
+        let NumeroPrecio = parseFloat ( productoAGuardar.precio )
+        productoAGuardar.precio = NumeroPrecio ;
+        productoAGuardar.id = ultimoid + 1 ;
+        productoAGuardar.timeStamp = timestamp;
+        console.log("El ultimo objeto agregado es : ", productoAGuardar)
+        productosDisponibles.push( productoAGuardar )
+        console.log("productosDisponibles:", productosDisponibles);
+        let arraySTRING= JSON.stringify( productosDisponibles )  //PASA DE JS A JSON
+        data.writeFileSync(  'archivos/productos.txt', `${ arraySTRING }` ) //SOBREESCRIBO EL ARCHIVO
+        res.status(201).send ( productosDisponibles )
+     }
+    // productoAGuardar.id = idAgregado;
+    // productoAGuardar.timeStamp = timestamp;
     
-    console.log( productoAGuardar );
+    // console.log( 'el producto guardado es:', productoAGuardar );
 
-    productosDisponibles.push(productoAGuardar);
-    let arraySTRING= JSON.stringify( productosDisponibles )  //PASA DE JS A JSON
-    data.writeFileSync(  'archivos/productos.txt', `${ arraySTRING }` )
+    // productosDisponibles.push(productoAGuardar);
+    // let arraySTRING= JSON.stringify( productosDisponibles )  //PASA DE JS A JSON
+    // data.writeFileSync(  'archivos/productos.txt', `${ arraySTRING }` )
 
-    res.status(201).send(productosDisponibles)
+    // res.status(201).send(productosDisponibles)
     
 });
 
@@ -105,10 +142,15 @@ router.put( '/:id' , ( req, res )=>{
 //ELIMINA PRODUCTO SEGUN SU ID
 router.delete( '/:id' , (req, res) => {
     let { id } = req.params;
-    console.log(productosDisponibles);
-    productosDisponibles.splice( id-1, id-1 )
+
+    productosDisponibles = JSON.parse( data.readFileSync( 'archivos/productos.txt','utf-8' ))  //PASA DE JSON A JS
+
+    
+    console.log("QUIERO BORRAR: ", productosDisponibles[ id-1 ]);
+    //console.log(productosDisponibles);
+    productosDisponibles.splice( id-1, 1 ) // EMPALME: DESDE DONDE BORRRA INCLUSIVE , CUANTOS BORRA
     productosDisponibles.forEach( elem => { elem.id = elem.id - 1 })
-    console.log("borrando", productosDisponibles);
+    console.log("sobrevivieron: ", productosDisponibles);
     let arraySTRING= JSON.stringify( productosDisponibles )  //PASA DE JS A JSON
     data.writeFileSync(  'archivos/productos.txt', `${ arraySTRING }` )
     

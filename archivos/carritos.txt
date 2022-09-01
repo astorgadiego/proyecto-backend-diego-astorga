@@ -1,6 +1,1 @@
-[
-
-    {"id":1,"timestamp":1660153126847,"productos":{}},
-    {"id":2,"timestamp":1660153126847,"productos":[{"nombre":"Diego","edad":45}] }
-
-]
+[{"id":1,"timestamp":1661915139403,"productos":[{"id":7,"nombre":"Emma","edad":888}]},{"id":2,"timestamp":1661915139403,"productos":[]},{"id":3,"timestamp":1661915139403,"productos":[{"id":11,"nombre":"Diego","edad":300}]}]

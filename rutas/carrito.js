@@ -1,26 +1,16 @@
 const express = require ( 'express' );
-const timestamp = require ('./timestamp');
+
 const data = require ('fs');
+const fncarrito = require ('../logica/carrito_funciones.js')
 
 const { Router } = express;
 
 const router = Router();
 
-const carrito = [];
 
 let carritosDisponibles
 
-function crearCarrito(params, objeto) {
-
-    let NuevoCarrito = {
-        id: params,
-        timestamp: timestamp,
-        productos : objeto
-    }
-    carrito.push(NuevoCarrito)
-    return " El id del carrito es: " + params  
-}
-
+//MUESTRA TODOS LOS CARRITOS DISPONIBLES
 router.get ('/', (req, res) => { 
     carritosDisponibles = JSON.parse( data.readFileSync( 'archivos/carritos.txt','utf-8' ))  //PASA DE JSON A JS 
     console.log(carritosDisponibles);
@@ -28,14 +18,43 @@ router.get ('/', (req, res) => {
     //res.send (crearCarrito( 1, prueba )) 
 } )
 
+//CREA UN CARRITO Y DEVUELVE SU ID
+
 router.post ('/', (req, res) => { 
     let prueba = { nombre: "Diego", edad: 45 }
+    // let data= data.readFileSync( 'archivos/carritos.txt','utf-8' )
+    // console.log(  );
+    if ( data.readFileSync( 'archivos/carritos.txt','utf-8' )  ===  '' ) {
+        console.log("ACA NO HABIA NADA");
+        let id = fncarrito.crearCarrito( 1, req.body )
+        let arraySTRING= JSON.stringify( fncarrito.carrito )  //PASA DE JS A JSON
+        //console.log("SOY YO?", carrito);
+        data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` ) 
+        res.status(201).send(id)
+    }
+    else{
+        console.log("ACA SI HAABIA ALGO.");
+        let ultimoid = 0;
+        carritosDisponibles = JSON.parse(  data.readFileSync( 'archivos/carritos.txt','utf-8' )); //PASA DE JSON A JS
 
-    let id = crearCarrito( 1, req.body )
-    let arraySTRING= JSON.stringify( carrito )  //PASA DE JS A JSON
-    data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` ) 
-    res.status(201).send(id) 
+        carritosDisponibles.forEach(element => {
+            ultimoid = element.id
+            console.log(element.id);
+        });
+        let id = fncarrito.crearCarrito( ultimoid + 1 , req.body )
+        let arraySTRING= JSON.stringify( fncarrito.carrito )  //PASA DE JS A JSON
+        data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` )
+        res.status(201).send(id)
+    }
+
+    // let id = fncarrito.crearCarrito( 1, req.body )
+    // let arraySTRING= JSON.stringify( fncarrito.carrito )  //PASA DE JS A JSON
+    // //console.log("SOY YO?", carrito);
+    // data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` ) 
+    // res.status(201).send(id) 
 })
+
+//LISTA TODOS LOS PRODUCTOS GUARDADOS EN EL CARRITO
 
 router.get('/:id/productos', (req,res) => { 
     let { id } = req.params;
@@ -65,6 +84,7 @@ router.get('/:id/productos', (req,res) => {
 })
 
 //Para incorporar productos al carrito por su id de producto
+//INCORPORA PRODUCTOS AL CARRITO POR SU ID DE PRODUCTO  
 router.post('/:id/productos',(req, res) => { 
     let { id } = req.params;
     let carritoAmodificar ;
@@ -94,16 +114,16 @@ router.post('/:id/productos',(req, res) => {
     res.send(`producto agregado al carrito numero ${id}`)
 })
 
+//VACIA UN CARRITO Y LO ELIMINA
+
 router.delete( '/:id', (req, res) => { 
     let { id } = req.params;
     let carritoAborrar
     
     carritosDisponibles = JSON.parse( data.readFileSync( 'archivos/carritos.txt','utf-8' ))  //PASA DE JSON A JS
-    console.log("todo:",carritosDisponibles);
-    carritoAborrar = carritosDisponibles[id-1]
-    console.log("borar:",carritoAborrar);
+    //console.log("borar:",carritoAborrar);
     carritosDisponibles.splice( id-1, 1 )
-    console.log("despues de borrar:", carritosDisponibles);
+    //console.log("despues de borrar:", carritosDisponibles);
     
     carritosDisponibles.forEach( elem => {  elem.id = elem.id - 1 })
     
@@ -115,9 +135,22 @@ router.delete( '/:id', (req, res) => {
 } )
 
 
-//Eliminar un producto del carrito por su id de carrito y de producto
+//ELIMINA UN PRODUCTO DEL CARRITO POR ID DE CARRITO Y DE PRODUCTO
 router.delete('/:id/productos/:id_prod',(req, res) => { 
-    let { id } = req.params
+    
+    let { id , id_prod } = req.params
+    console.log( id_prod );
+    carritosDisponibles = JSON.parse( data.readFileSync( 'archivos/carritos.txt','utf-8' ))  //PASA DE JSON A JS
+    console.log( "viejo",carritosDisponibles[1] );
+    carritosDisponibles[ id -1 ].productos.splice( id_prod - 1  , 1 )
+    carritosDisponibles[ id -1 ].productos.forEach ( prod => {
+             prod.id = prod.id -1
+     } )
+    console.log( "nuevo",carritosDisponibles[1] );
+    let carritoSTRING= JSON.stringify( carritosDisponibles )  //PASA DE JS A JSON
+    console.log(carritoSTRING);
+    data.writeFileSync(  'archivos/carritos.txt', `${ carritoSTRING }` )
+
     res.status(200).send(`Producto Eliminado Exitosamente DEL CARRITO de ID:  ${id}`);
 })
 
