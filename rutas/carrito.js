@@ -1,17 +1,19 @@
-const express = require ( 'express' );
+//const express = require ( 'express' );
+import express from 'express'
+//const data = require ('fs');
+import * as data from 'fs'
 
-const data = require ('fs');
-const fncarrito = require ('../logica/carrito_funciones.js')
-
+//const fncarrito = require ('../logica/carrito_funciones.js')
+import crearCarrito , { carrito } from '../logica/carrito_funciones.js'
 const { Router } = express;
 
-const router = Router();
+export const routercarrito = Router();
 
 
 let carritosDisponibles
 
 //MUESTRA TODOS LOS CARRITOS DISPONIBLES
-router.get ('/', (req, res) => { 
+routercarrito.get ('/', (req, res) => { 
     carritosDisponibles = JSON.parse( data.readFileSync( 'archivos/carritos.txt','utf-8' ))  //PASA DE JSON A JS 
     console.log(carritosDisponibles);
     res.send(carritosDisponibles);
@@ -20,14 +22,14 @@ router.get ('/', (req, res) => {
 
 //CREA UN CARRITO Y DEVUELVE SU ID
 
-router.post ('/', (req, res) => { 
+routercarrito.post ('/', (req, res) => { 
     let prueba = { nombre: "Diego", edad: 45 }
     // let data= data.readFileSync( 'archivos/carritos.txt','utf-8' )
     // console.log(  );
     if ( data.readFileSync( 'archivos/carritos.txt','utf-8' )  ===  '' ) {
         console.log("ACA NO HABIA NADA");
-        let id = fncarrito.crearCarrito( 1, req.body )
-        let arraySTRING= JSON.stringify( fncarrito.carrito )  //PASA DE JS A JSON
+        let id = crearCarrito( 1, req.body )
+        let arraySTRING= JSON.stringify( carrito )  //PASA DE JS A JSON
         //console.log("SOY YO?", carrito);
         data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` ) 
         res.status(201).send(id)
@@ -41,8 +43,8 @@ router.post ('/', (req, res) => {
             ultimoid = element.id
             console.log(element.id);
         });
-        let id = fncarrito.crearCarrito( ultimoid + 1 , req.body )
-        let arraySTRING= JSON.stringify( fncarrito.carrito )  //PASA DE JS A JSON
+        let id = crearCarrito( ultimoid + 1 , req.body )
+        let arraySTRING= JSON.stringify( carrito )  //PASA DE JS A JSON
         data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` )
         res.status(201).send(id)
     }
@@ -56,7 +58,7 @@ router.post ('/', (req, res) => {
 
 //LISTA TODOS LOS PRODUCTOS GUARDADOS EN EL CARRITO
 
-router.get('/:id/productos', (req,res) => { 
+routercarrito.get('/:id/productos', (req,res) => { 
     let { id } = req.params;
 
     carritosDisponibles = JSON.parse( data.readFileSync( 'archivos/carritos.txt','utf-8' ))  //PASA DE JSON A JS
@@ -85,7 +87,7 @@ router.get('/:id/productos', (req,res) => {
 
 //Para incorporar productos al carrito por su id de producto
 //INCORPORA PRODUCTOS AL CARRITO POR SU ID DE PRODUCTO  
-router.post('/:id/productos',(req, res) => { 
+routercarrito.post('/:id/productos',(req, res) => { 
     let { id } = req.params;
     let carritoAmodificar ;
     let productosEnCarrito
@@ -109,14 +111,13 @@ router.post('/:id/productos',(req, res) => {
     // console.log("marca",carritosDisponibles);
     let arraySTRING= JSON.stringify( carritosDisponibles )  //PASA DE JS A JSON
     data.writeFileSync(  'archivos/carritos.txt', `${ arraySTRING }` ) 
-    // console.log("hola", productosEnCarrito);
-    // console.log(carritoAmodificar);
+    
     res.send(`producto agregado al carrito numero ${id}`)
 })
 
 //VACIA UN CARRITO Y LO ELIMINA
 
-router.delete( '/:id', (req, res) => { 
+routercarrito.delete( '/:id', (req, res) => { 
     let { id } = req.params;
     let carritoAborrar
     
@@ -136,7 +137,7 @@ router.delete( '/:id', (req, res) => {
 
 
 //ELIMINA UN PRODUCTO DEL CARRITO POR ID DE CARRITO Y DE PRODUCTO
-router.delete('/:id/productos/:id_prod',(req, res) => { 
+routercarrito.delete('/:id/productos/:id_prod',(req, res) => { 
     
     let { id , id_prod } = req.params
     console.log( id_prod );
@@ -156,4 +157,4 @@ router.delete('/:id/productos/:id_prod',(req, res) => {
 
 
 
-module.exports = router
+//module.exports = routercarrito

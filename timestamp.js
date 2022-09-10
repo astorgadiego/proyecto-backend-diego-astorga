@@ -1,4 +1,2 @@
-let hora= Date.now()
+export let hora= Date.now()
 //console.log(hora);
-
-module.exports = hora

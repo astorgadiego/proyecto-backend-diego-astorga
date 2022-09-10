@@ -1,16 +1,21 @@
-const { timeStamp } = require('console');
+//-------IMPORTANTE PARA PODER USAR EL REQUIRE CON EL TYPE: MODULE
+import { createRequire } from 'module';
+const require = createRequire ( import.meta.url )
+
+//const { hora } = require('console');
 const express = require ( 'express' );
-const timestamp = require ('../timestamp');
+import { hora } from '../timestamp.js';
+//const hora = require ('../hora');
 const data = require ('fs');
 
 const { Router } = express;
 
-const router = Router();
+export const router = Router();
 
 // const productosDisponibles =[
 //     {
 //         id: 1,
-//         timeStamp: Date.now(),
+//         hora: Date.now(),
 //         titulo: "Brocoli",
 //         descripcion: "Verdura",
 //         codigo: "producto1",
@@ -20,7 +25,7 @@ const router = Router();
 //     },
 //     {
 //         id: 2,
-//         timeStamp: timestamp,
+//         hora: hora,
 //         titulo: "Zanahoria",
 //         descripcion: "Verdura",
 //         codigo: "producto2",
@@ -37,8 +42,8 @@ let productosDisponibles =[];
 router.get ('/', (req, res) => {
     productosDisponibles = JSON.parse( data.readFileSync( 'archivos/productos.txt','utf-8' ))  //PASA DE JSON A JS
     productosDisponibles.forEach(element => {
-        element.timeStamp = timestamp;
-        console.log(element.timeStamp);
+        element.hora = hora;
+        console.log(element.hora);
     }); 
     console.log(productosDisponibles);
     res.send(productosDisponibles);
@@ -70,13 +75,13 @@ router.post('/', (req, res) => {
     const productoAGuardar = req.body;
     console.log("quien soy:",productoAGuardar );
     let idAgregado = parseInt( productoAGuardar.id ) //PASA DE STRING A ENTERO
-    //let timeStampNuevo = parseInt ( productoAGuardar.timeStamp )
+    //let horaNuevo = parseInt ( productoAGuardar.hora )
     if ( data.readFileSync( 'archivos/productos.txt' ,'utf-8' )  ===  '' ) {
         console.log("ACA NO HABIA NADA");
         let NumeroPrecio = parseFloat ( productoAGuardar.precio )
         productoAGuardar.precio = NumeroPrecio ;
         productoAGuardar.id = 1;    
-        productoAGuardar.timeStamp = timestamp;
+        productoAGuardar.hora = hora;
         console.log( 'el producto guardado es:', productoAGuardar );
 
         productosDisponibles.push(productoAGuardar);
@@ -99,7 +104,7 @@ router.post('/', (req, res) => {
         let NumeroPrecio = parseFloat ( productoAGuardar.precio )
         productoAGuardar.precio = NumeroPrecio ;
         productoAGuardar.id = ultimoid + 1 ;
-        productoAGuardar.timeStamp = timestamp;
+        productoAGuardar.hora = hora;
         console.log("El ultimo objeto agregado es : ", productoAGuardar)
         productosDisponibles.push( productoAGuardar )
         console.log("productosDisponibles:", productosDisponibles);
@@ -108,7 +113,7 @@ router.post('/', (req, res) => {
         res.status(201).send ( productosDisponibles )
      }
     // productoAGuardar.id = idAgregado;
-    // productoAGuardar.timeStamp = timestamp;
+    // productoAGuardar.hora = hora;
     
     // console.log( 'el producto guardado es:', productoAGuardar );
 
@@ -158,4 +163,4 @@ router.delete( '/:id' , (req, res) => {
 
 } )
 
-module.exports = router
+//module.exports = router

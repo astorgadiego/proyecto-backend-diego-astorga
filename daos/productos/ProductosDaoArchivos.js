@@ -1,23 +1,14 @@
-import mongoose from "mongoose";
+import mongooseCRUD from '../../contenedores/mongooseSchema.js'
 
-import { DBProductos } from "../../configMongoose.js"
+/*---CONECCION HACIA LA BASE DE DATOS */
+const URL = "mongodb://localhost:27017/proyecto-backend"
 
-class Contenedor{
-    constructor( elemento ){
-        this.elemento = elemento
+class ProductosDaoArchivo extends mongooseCRUD {
 
-    }
-
-    listarTodo ( elemento ){
-        console.log(this.elemento);
-    }
-
-    borrarPorID (elemento ){
-
+    constructor(){
+        super ( '../../archivos/productos.txt' )
     }
 
 }
 
-
-module.exports = Contenedor
-//Diego.listarTodo()
+export default ProductosDaoArchivo;

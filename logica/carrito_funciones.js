@@ -1,30 +1,17 @@
-const timestamp = require ('../timestamp');
-// function crearCarrito(params, objeto) {
+//const timestamp = require ('../timestamp');
+import { hora } from '../timestamp.js';
 
-//     let NuevoCarrito = {
-//         id: params,
-//         timestamp: timestamp,
-//         productos : objeto
-//     }
-//     carrito.push(NuevoCarrito)
-//     return " El id del carrito es: " + params  
-// }
-
-
-const carrito = [];
-
-module.exports = {
-    crearCarrito : ( params, objeto ) => {
-                        let productosDelCarrito = [];
+export default function crearCarrito(params, objeto) {
+    let productosDelCarrito = [];
                         productosDelCarrito.push(objeto)
                         console.log("FUNCION:", productosDelCarrito);
                         let NuevoCarrito = {
                             id: params,
-                            timestamp: timestamp,
+                            timestamp: hora,
                             productos : productosDelCarrito
                         }
                         carrito.push(NuevoCarrito)
-                        return " El id del carrito es: " + params 
-                    },
-    carrito : carrito
+                        return " El id del carrito es: " + params
+    
 }
+export const carrito = [];
